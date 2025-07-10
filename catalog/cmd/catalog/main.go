@@ -21,7 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var r.catalog.Repository
+	var r catalog.Repository
 
 	retry.ForeverSleep(2*time.Second, func(_ int) (err error) {
 		r, err = catalog.NewElasticRepository(cfg.DatabaseURL)

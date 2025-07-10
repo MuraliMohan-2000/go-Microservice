@@ -1,13 +1,33 @@
-FROM golang:1.13-alpine3.11 AS build
-RUN apk --no-cache add gcc g++ make ca-certificates
-WORKDIR /go/src/dev.murali.go-microservice
-COPY go.mod go.sum ./
-COPY vendor vendor
-COPY account account
-RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./catalog/cmd/catalog
+# Build stage using latest Go Alpine image
+FROM golang:1.22-alpine3.20 AS build
 
-FROM alpine:3.11
+# Install build dependencies
+RUN apk --no-cache add gcc g++ make ca-certificates
+
+# Set working directory
+WORKDIR /go/src/dev.murali.go-microservice
+
+# Copy go.mod and go.sum
+COPY go.mod go.sum ./
+
+# Copy vendor and catalog directories
+COPY vendor ./vendor
+COPY catalog ./catalog
+
+# Build the catalog service binary
+RUN go build -mod=vendor -o /go/bin/app ./catalog/cmd/catalog
+
+# Runtime stage using minimal Alpine image
+FROM alpine:3.20
+
+# Set working directory
 WORKDIR /usr/bin
-COPY --from=build /go/bin .
+
+# Copy built binary from build stage
+COPY --from=build /go/bin/app .
+
+# Expose the service port
 EXPOSE 8080
-CMD ["app"]
+
+# Set the startup command
+CMD ["./app"]
