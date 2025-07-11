@@ -8,26 +8,26 @@ import (
 	pb "dev.murali.go-microservice/catalog/pb"
 )
 
-type client struct {
+type Client struct {
 	conn    *grpc.ClientConn
 	service pb.CatalogServiceClient
 }
 
-func NewClient(url string) (*client, error) {
+func NewClient(url string) (*Client, error) {
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
 
 	c := pb.NewCatalogServiceClient(conn)
-	return &client{conn, c}, nil
+	return &Client{conn, c}, nil
 }
 
-func (c *client) close() {
+func (c *Client) Close() {
 	c.conn.Close()
 }
 
-func (c *client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
+func (c *Client) PostProduct(ctx context.Context, name, description string, price float64) (*Product, error) {
 	r, err := c.service.PostProduct(
 		ctx,
 		&pb.PostProductRequest{
@@ -49,7 +49,7 @@ func (c *client) PostProduct(ctx context.Context, name, description string, pric
 
 }
 
-func (c *client) GetProduct(ctx context.Context, id string) (*Product, error) {
+func (c *Client) GetProduct(ctx context.Context, id string) (*Product, error) {
 
 	r, err := c.service.GetProduct(
 		ctx,
@@ -71,7 +71,7 @@ func (c *client) GetProduct(ctx context.Context, id string) (*Product, error) {
 
 }
 
-func (c *client) GetProducts(ctx context.Context, ids []string, skip uint64, take uint64, query string) ([]Product, error) {
+func (c *Client) GetProducts(ctx context.Context, ids []string, skip uint64, take uint64, query string) ([]Product, error) {
 	r, err := c.service.GetProducts(
 		ctx,
 		&pb.GetProductsRequest{
