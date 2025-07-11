@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/99designs/gqlgen/graphql/handler" // ✅ FIXED
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/99designs/gqlgen/handler"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -27,9 +27,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.Handle("/graphql", handler.GraphQL(s.ToExecutableSchema()))
+	// ✅ Use new handler.Server
+	srv := handler.NewDefaultServer(s.ToExecutableSchema())
+
+	http.Handle("/graphql", srv)
 	http.Handle("/playground", playground.Handler("murali", "/graphql"))
 
+	log.Println("GraphQL server started on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
-
 }
